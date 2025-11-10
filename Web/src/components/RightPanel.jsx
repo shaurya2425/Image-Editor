@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Slider } from './ui/slider';
 import { Button } from './ui/button';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
@@ -12,6 +13,17 @@ export default function RightPanel({
                                        onApply,
                                        onReset
                                    }) {
+    const [selectedFilter, setSelectedFilter] = useState(properties.filter);
+
+    useEffect(() => {
+        setSelectedFilter(properties.filter);
+    }, [properties.filter]);
+
+    const handleApply = () => {
+        onPropertyChange('filter', selectedFilter);
+        onApply();
+    };
+
     const renderToolProperties = () => {
         switch (selectedTool) {
             case 'crop':
@@ -67,27 +79,27 @@ export default function RightPanel({
                                 {['None', 'Grayscale', 'Sepia', 'Vintage', 'Neon', 'Cool'].map((filter) => (
                                     <button
                                         key={filter}
-                                        onClick={() => onPropertyChange('filter', filter.toLowerCase())}
+                                        onClick={() => setSelectedFilter(filter.toLowerCase())}
                                         className={`px-4 py-2 rounded-lg transition-all ${
-                                            properties.filter === filter.toLowerCase()
+                                            selectedFilter === filter.toLowerCase()
                                                 ? 'neon-glow text-white'
                                                 : ''
                                         }`}
                                         style={{
-                                            backgroundColor: properties.filter === filter.toLowerCase()
+                                            backgroundColor: selectedFilter === filter.toLowerCase()
                                                 ? 'var(--editor-neon-blue)'
                                                 : 'rgba(31, 111, 235, 0.1)',
-                                            color: properties.filter === filter.toLowerCase()
+                                            color: selectedFilter === filter.toLowerCase()
                                                 ? '#ffffff'
                                                 : 'var(--editor-text)'
                                         }}
                                         onMouseEnter={(e) => {
-                                            if (properties.filter !== filter.toLowerCase()) {
+                                            if (selectedFilter !== filter.toLowerCase()) {
                                                 e.currentTarget.style.backgroundColor = 'rgba(31, 111, 235, 0.2)';
                                             }
                                         }}
                                         onMouseLeave={(e) => {
-                                            if (properties.filter !== filter.toLowerCase()) {
+                                            if (selectedFilter !== filter.toLowerCase()) {
                                                 e.currentTarget.style.backgroundColor = 'rgba(31, 111, 235, 0.1)';
                                             }
                                         }}
@@ -250,10 +262,10 @@ export default function RightPanel({
                 {renderToolProperties()}
             </div>
 
-            {selectedTool && selectedTool !== 'steganography' && (
+            {selectedTool && selectedTool !== 'steganography' && selectedTool !== 'adjustments' && (
                 <div className="p-6 border-t space-y-3" style={{ borderColor: 'var(--editor-border)' }}>
                     <Button
-                        onClick={onApply}
+                        onClick={selectedTool === 'filters' ? handleApply : onApply}
                         className="w-full text-white neon-glow"
                         style={{ backgroundColor: 'var(--editor-neon-blue)' }}
                         onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
